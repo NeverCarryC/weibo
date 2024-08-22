@@ -2,6 +2,7 @@
   <div class="container ">
     <a class="navbar-brand" href="{{ route('home') }}">Weibo App</a>
     <ul class="navbar-nav justify-content-end">
+      <!-- Auth::check() 方法用于判断当前用户是否已登录 -->
       @if (Auth::check())
         <li class="nav-item"><a class="nav-link" href="#">用户列表</a></li>
         <li class="nav-item dropdown">

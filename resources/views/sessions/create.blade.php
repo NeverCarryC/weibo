@@ -10,7 +10,7 @@
     </div>
     <div class="card-body">
       @include('shared._errors')
-
+      <!-- 由于我们在表单中清楚的指明了使用 POST 动作来提交用户的登录信息，因此 Laravel 会自动将该请求映射到会话控制器的 store 动作上。 -->
       <form method="POST" action="{{ route('login') }}">
           {{ csrf_field() }}
 

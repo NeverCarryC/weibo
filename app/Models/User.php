@@ -17,6 +17,7 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
+    // 只有包含在该属性中的字段才能够被正常更新
     protected $fillable = [
         'name',
         'email',
@@ -38,6 +39,7 @@ class User extends Authenticatable
      *
      * @var array<string, string>
      */
+    // 访问和操作模型属性时自动处理数据类型的转换
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
