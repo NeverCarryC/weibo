@@ -25,18 +25,25 @@ class SessionsController extends Controller
         // 如果验证通过，validate() 方法会返回经过验证的输入数据，通常是一个关联数组。
         // 如果验证失败，Laravel会自动重定向用户回到之前的页面，并附带验证错误信息。
 
-       $credentials = $this->validate($request, [
-           'email' => 'required|email|max:255',
-           'password' => 'required'
-       ]);
-    //. 如果匹配后两个值完全一致，会创建一个『会话』给通过认证的用户。会话在创建的同时，也会种下一个名为 laravel_session 的 HTTP Cookie，以此 Cookie 来记录用户登录状态，最终返回 true
-       if (Auth::attempt($credentials, $request->has('remember'))) {
-            // 登录成功后的相关操作
-            session()->flash('success', '欢迎回来！');
-            // Auth::user() 方法来获取 当前登录用户 的信息，
-            $fallback = route('users.show', Auth::user());
-            // 该方法可将页面重定向到上一次请求尝试访问的页面上，并接收一个默认跳转地址参数，当上一次请求记录为空时，跳转到默认地址上。
-            return redirect()->intended($fallback);
+        $credentials = $this->validate($request, [
+            'email' => 'required|email|max:255',
+            'password' => 'required'
+        ]);
+        //. 如果匹配后两个值完全一致，会创建一个『会话』给通过认证的用户。会话在创建的同时，也会种下一个名为 laravel_session 的 HTTP Cookie，以此 Cookie 来记录用户登录状态，最终返回 true
+        if (Auth::attempt($credentials, $request->has('remember'))) {
+
+            if (Auth::user()->activated) {
+                // 登录成功后的相关操作
+                session()->flash('success', '欢迎回来！');
+                // Auth::user() 方法来获取 当前登录用户 的信息，
+                $fallback = route('users.show', Auth::user());
+                // 该方法可将页面重定向到上一次请求尝试访问的页面上，并接收一个默认跳转地址参数，当上一次请求记录为空时，跳转到默认地址上。
+                return redirect()->intended($fallback);
+            } else {
+                Auth::logout();
+                session()->flash('warning', '你的账号未激活，请检查邮箱中的注册邮件进行激活。');
+                return redirect('/');
+            }
         } else {
             // 登录失败后的相关操作
             session()->flash('danger', '很抱歉，您的邮箱和密码不匹配');
@@ -46,7 +53,7 @@ class SessionsController extends Controller
 
 
 
-       return;
+        return;
     }
 
 
@@ -56,6 +63,4 @@ class SessionsController extends Controller
         session()->flash('success', '您已成功退出！');
         return redirect('login');
     }
-
-
 }

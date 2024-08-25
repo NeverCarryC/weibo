@@ -34,3 +34,5 @@ Route::get('login', 'SessionsController@create')->name('login');
 // 登录验证
 Route::post('login', 'SessionsController@store')->name('login');
 Route::delete('logout', 'SessionsController@destroy')->name('logout');
+// 注册后发送验证邮件
+Route::get('signup/confirm/{token}', 'UsersController@confirmEmail')->name('confirm_email');

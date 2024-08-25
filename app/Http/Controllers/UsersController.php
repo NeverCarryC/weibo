@@ -5,14 +5,14 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
-
+use Illuminate\Support\Facades\Mail;
 
 class UsersController extends Controller
 {
     public function __construct()
     {
         $this->middleware('auth', [
-            'except' => ['show', 'create', 'store', 'index']
+            'except' => ['show', 'create', 'store', 'index', 'confirmEmail']
         ]);
 
         $this->middleware('guest', [
@@ -50,9 +50,9 @@ class UsersController extends Controller
             'password' => bcrypt($request->password),
         ]);
 
-        //在用户注册成功后能够自动登录
-        Auth::login($user);
-
+        // 在用户注册成功后能够自动登录,但在邮箱注册这个环节，不能注册后自动登录，要用户查看收件箱，找到验证邮件后，点击验证才能登录
+        // Auth::login($user);
+        $this->sendEmailConfirmationTo($user);
         // flash会在下一次请求中显示，之后会自动删除。
         // 这个时候就感觉请求不再是 用户对服务器的请求，服务器内也会对别的控制器发送请求，然后执行某些函数
         // 所以说是发出请求，我感觉就变成了 调用某个控制器的方法
@@ -101,4 +101,31 @@ class UsersController extends Controller
         return back();
     }
 
+    protected function sendEmailConfirmationTo($user)
+    {
+        $view = 'emails.confirm';
+        $data = compact('user');
+        $from = 'summer@example.com';
+        $name = 'Summer';
+        $to = $user->email;
+        $subject = "感谢注册 Weibo 应用！请确认你的邮箱。";
+
+        Mail::send($view, $data, function ($message) use ($from, $name, $to, $subject) {
+            $message->from($from, $name)->to($to)->subject($subject);
+        });
+    }
+
+    public function confirmEmail($token)
+    {
+        // 在查询不到指定用户时将返回一个 404 响应
+        $user = User::where('activation_token', $token)->firstOrFail();
+
+        $user->activated = true;
+        $user->activation_token = null;
+        $user->save();
+
+        Auth::login($user);
+        session()->flash('success', '恭喜你，激活成功！');
+        return redirect()->route('users.show', [$user]);
+    }
 }
