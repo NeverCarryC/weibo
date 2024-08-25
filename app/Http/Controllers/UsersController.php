@@ -88,7 +88,8 @@ class UsersController extends Controller
     }
 
     public function index(){
-        $users = User::all();
+        // 在上面代码我们使用 paginate 方法来指定每页生成的数据数量为 6 条
+        $users = User::paginate(6);
         return view('users.index', compact('users'));
     }
 }
