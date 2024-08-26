@@ -44,7 +44,7 @@ class PasswordController extends Controller
         ]);
 
         // 6. 将 Token 链接发送给用户
-        Mail::send('auth.emails.reset_link', compact('token'), function ($message) use ($email) {
+        Mail::send('emails.reset_link', compact('token'), function ($message) use ($email) {
             $message->to($email)->subject("忘记密码");
         });
 
